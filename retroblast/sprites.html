@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Retro Blast :: Sprites</title>
+	<link rel="icon" href="//ldy.dk/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="styles.css">
+	<style>
+.sprite {
+	width: 32px;
+	height: 32px;
+	background-color: blue;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	border-radius: 50%;
+}
+</style>
+</head>
+<body>
+	<h1>Sprites</h1>
+<div class="frame" style="height: 540px">
+	<div style="float: left;">
+		<canvas id="dots" width="401" height="401"></canvas>
+	</div>
+	<div style="float: right">
+		<label for="c_index_1" class="label">Cos Index #1</label>
+		<input type="numeric" id="c_index_1" class="input" /><br class="br" />
+		<label for="c_speed_1" class="label">Cos Speed #1</label>
+		<input type="numeric" id="c_speed_1" class="input" /><br class="br" />
+		<label for="c_index_2" class="label">Cos Index #2</label>
+		<input type="numeric" id="c_index_2" class="input" /><br class="br" />
+		<label for="c_speed_2" class="label">Cos Speed #2</label>
+		<input type="numeric" id="c_speed_2" class="input" /><br class="br" />
+		<label for="c_stride" class="label">Cos Stride</label>
+		<input type="numeric" id="c_stride" class="input" /><br class="br" />
+		<label for="s_index_1" class="label">Sin Index #1</label>
+		<input type="numeric" id="s_index_1" class="input" /><br class="br" />
+		<label for="s_speed_1" class="label">Sin Speed #1</label>
+		<input type="numeric" id="s_speed_1" class="input" /><br class="br" />
+		<label for="s_index_2" class="label">Sin Index #2</label>
+		<input type="numeric" id="s_index_2" class="input" /><br class="br" />
+		<label for="s_speed_2" class="label">Sin Speed #2</label>
+		<input type="numeric" id="s_speed_2" class="input" /><br class="br" />
+		<label for="s_stride" class="label">Sin Stride</label>
+		<input type="numeric" id="s_stride" class="input" /><br class="br" />
+		<button onclick="update(); return false">Update</button>
+	</div>
+</div>
+<div>
+	<div id="s0" class="sprite"></div>
+	<div id="s1" class="sprite"></div>
+	<div id="s2" class="sprite"></div>
+	<div id="s3" class="sprite"></div>
+	<div id="s4" class="sprite"></div>
+	<div id="s5" class="sprite"></div>
+	<div id="s6" class="sprite"></div>
+	<div id="s7" class="sprite"></div>
+</div>
+<script>
+var dots = document.getElementById('dots').getBoundingClientRect();
+var x_adjust = dots.left + window.scrollX;
+var y_adjust = dots.top + window.scrollY;
+var cos_tab = [];
+var sin_tab = [];
+var amplitude = 200;
+var table_length = 256;
+var step = (2 * Math.PI) / table_length;
+var point = 0;
+for (var i = 0; i < table_length; i++) {
+	cos_tab[i] = ((Math.cos(point) * amplitude) + amplitude);
+	sin_tab[i] = ((Math.sin(point) * amplitude) + amplitude);
+	point += step;
+}
+
+var canvas = document.getElementById('dots');
+var ctx = canvas.getContext('2d');
+ctx.strokeStyle = 'rgb(0, 0, 0)';
+for (var i = 0; i < table_length; i++) {
+	ctx.fillRect(cos_tab[i] + 0.5, sin_tab[i] + 0.5, 1, 1);
+}
+
+var divs = [];
+for (var i = 0; i < 8; i++) {
+	divs[i] = document.getElementById('s' + i);
+}
+
+var c_index_1 = 32;
+document.getElementById('c_index_1').value = c_index_1;
+var c_speed_1 = 3;
+document.getElementById('c_speed_1').value = c_speed_1;
+var c_index_2 = 36;
+document.getElementById('c_index_2').value = c_index_2;
+var c_speed_2 = -1;
+document.getElementById('c_speed_2').value = c_speed_2;
+var c_stride = 20;
+document.getElementById('c_stride').value = c_stride;
+var s_index_1 = 100;
+document.getElementById('s_index_1').value = s_index_1;
+var s_speed_1 = -1;
+document.getElementById('s_speed_1').value = s_speed_1;
+var s_index_2 = 200;
+document.getElementById('s_index_2').value = s_index_2;
+var s_speed_2 = 2;
+document.getElementById('s_speed_2').value = s_speed_2;
+var s_stride = 40;
+document.getElementById('s_stride').value = s_stride;
+
+window.requestAnimationFrame(animation);
+
+function bound_add(value, add)
+{
+	value += add;
+	if (value > table_length - 1) {
+		return value - table_length;
+	}
+
+	if (value < 1) {
+		return table_length - 1 - value;
+	}
+
+	return value;
+}
+
+function animation(timestamp)
+{
+	var c_index = bound_add(c_index_1, c_index_2);
+	var s_index = bound_add(s_index_1, s_index_2);
+	for (var i = 0; i < 8; i++) {
+		divs[i].style.left = cos_tab[c_index] + x_adjust + 'px';
+		divs[i].style.top = sin_tab[s_index] + y_adjust + 'px';
+		c_index = bound_add(c_index, c_stride);
+		s_index = bound_add(s_index, s_stride);
+	}
+	c_index_1 = bound_add(c_index_1, c_speed_1);
+	c_index_2 = bound_add(c_index_2, c_speed_2);
+	s_index_1 = bound_add(s_index_1, s_speed_1);
+	s_index_2 = bound_add(s_index_2, s_speed_2);
+	window.requestAnimationFrame(animation);
+}
+
+function update()
+{
+	c_index_1 = parseInt(document.getElementById('c_index_1').value);
+	c_speed_1 = parseInt(document.getElementById('c_speed_1').value);
+	c_index_2 = parseInt(document.getElementById('c_index_2').value);
+	c_speed_2 = parseInt(document.getElementById('c_speed_2').value);
+	c_stride = parseInt(document.getElementById('c_stride').value);
+	s_index_1 = parseInt(document.getElementById('s_index_1').value);
+	s_speed_1 = parseInt(document.getElementById('s_speed_1').value);
+	s_index_2 = parseInt(document.getElementById('s_index_2').value);
+	s_speed_2 = parseInt(document.getElementById('s_speed_2').value);
+	s_stride = parseInt(document.getElementById('s_stride').value);
+}
+</script>
+	<p><br /></p>
+</body>
+</html>
+</body>
+</html>

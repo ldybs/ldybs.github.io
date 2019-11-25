@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Retro Blast :: Pronounceable Passwords</title>
+	<link rel="icon" href="//ldy.dk/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="styles.css">
+	<style>
+#result {
+	background-color: white;
+	color: black;
+	text-align: center;
+	padding: 0;
+}
+
+#pr-container {
+	width: 800px;
+	padding: 0;
+	margin: 0 auto;
+}
+
+#pr-left {
+	width: 300px;
+	float: left;
+	padding: 0;
+}
+
+#pr-right {
+	width: 450px;
+	float: right;
+	padding: 0;
+}
+</style>
+</head>
+<body>
+	<h1 class="header-title">Pronounceable Passwords</h1>
+	<p>Nothing is sent to the server. Everything runs client side.</p>
+	<p><br /></p>
+	<div id="pr-container">
+		<div id="pr-left">
+			<label for="count" class="label">Passwords:</label><br class="br" />
+			<input type="numeric" id="count" class="input" /><br class="br" />
+			<label for="length" class="label">Length:</label><br class="br" />
+			<input type="numeric" id="length" class="input" /><br class="br" />
+			<label for="digits" class="label">Digits:</label><br class="br" />
+			<input type="numeric" id="digits" class="input" /><br class="br" />
+			<p style="text-align: center">
+				<button onclick="clear_result(); return false">Clear</button>
+				&nbsp;
+				<button onclick="generate(); return false">Generate</button>
+			</p>
+		</div>
+		<div id="pr-right">
+			<p id="result"></p>
+		</div>
+	</div>
+<script>
+function set_result(html)
+{
+	var element = document.getElementById('result');
+	element.innerHTML = html;
+	element.hidden = html.length == 0;
+}
+
+function clear_result()
+{
+	set_result('');
+	document.getElementById('count').value = 10;
+	document.getElementById('length').value = 10;
+	document.getElementById('digits').value = 2;
+}
+
+function get_passwords(count, length, digits)
+{
+	length -= digits;
+	var passwords = [];
+	var consonants = 'bcdfghjklmnprstvwxyz';
+	var c_len = consonants.length;
+	var vocals = 'aeiou';
+	var v_len = vocals.length;
+	var numbers = '0123456789';
+	var n_len = numbers.length;
+
+	for (; count > 0; count--) {
+		var password = '';
+		var alphas = parseInt(length / 2);
+		for (var i = 0; i < alphas; i++) {
+			password += consonants.charAt(Math.random() * c_len);
+			password += vocals.charAt(Math.random() * v_len);
+		}
+
+		if (length % 2 == 1) {
+			password += vocals.charAt(Math.random() * v_len);
+		}
+
+		for (var i = 0; i < digits; i++) {
+			password += numbers.charAt(Math.random() * n_len);
+		}
+
+		passwords.push(password);
+	}
+
+	return passwords;
+}
+
+function generate()
+{
+	try {
+		var count = parseInt(document.getElementById('count').value);
+		if (isNaN(count) || count < 1 || count > 100) {
+			throw "Passwords must be between 1 and 100";
+		}
+		
+		var length = parseInt(document.getElementById('length').value);
+		if (isNaN(length) || length < 1 || length > 50) {
+			throw "Length must be between 1 and 50";
+		}
+
+		var digits = parseInt(document.getElementById('digits').value);
+		if (isNaN(digits) || digits < 0 || digits > length) {
+			throw "Digits must be between 0 and " + length;
+		}
+
+		var passwords = get_passwords(count, length, digits);
+		var html = passwords.join('<br />');
+		set_result(html);
+	} catch (err) {
+		alert(err);
+	}
+}
+
+clear_result('');
+</script>
+	<p><br /></p>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Retro Blast :: Waves</title>
+	<link rel="icon" href="//ldy.dk/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" href="styles.css">
+	<style>
+#download-link { visibility: hidden; }
+	</style>
+</head>
+<body>
+	<h1>Waves</h1>
+	<div style="width: 300px; margin: 0 auto">
+		<label for="amplitude" class="label">Amplitude:</label>
+		<input type="numeric" id="amplitude" class="input" /><br class="br" />
+		<label for="table_length" class="label">Table length:</label>
+		<input type="numeric" id="table_length" class="input" /><br class="br" />
+		<label for="entries_per_line" class="label">Entries per line:</label>
+		<input type="numeric" id="entries_per_line" class="input" /><br class="br" />
+		<label for="origo_is_amplitude" class="label">Origo is amplitude:</label>
+		<input type="checkbox" id="origo_is_amplitude" class="input" /><br class="br" />
+		<button onclick="create_download(); return false">Create download</button>
+		<p><br /></p>
+		<p><a download="wave_tables.h" href="" id="download-link">Download wave tables for c-language</a></p>
+	</div>
+<script>
+document.getElementById('amplitude').value = 100;
+document.getElementById('table_length').value = 256;
+document.getElementById('entries_per_line').value = 16;
+document.getElementById('origo_is_amplitude').checked = true;
+
+function generate_table(code, name, func, amplitude, table_length, entries_per_line, origo)
+{
+	var step = (2 * Math.PI) / table_length;
+	var point = 0;
+	var entry = 0
+	code += '\nstatic int ' + name + '[' + table_length + '] = {\n\t';
+	for (var i = 0; i < table_length; i++) {
+		var value = ((func(point) * amplitude) + origo) | 0;
+		code += '' + value;
+		entry++;
+		if (entry == entries_per_line) {
+			entry = 0;
+			if (i == table_length - 1) {
+				code += '\n';
+			} else {
+				code += ',\n\t';
+			}
+		} else {
+			code += i < table_length - 1 ? ', ' : '\n';
+		}
+
+		point += step;
+	}
+
+	code += '}\n';
+	return code;
+}
+
+function create_download()
+{
+	var amplitude = parseInt(document.getElementById('amplitude').value);
+	var table_length = parseInt(document.getElementById('table_length').value);
+	var entries_per_line = parseInt(document.getElementById('entries_per_line').value);
+	var origo = document.getElementById('origo_is_amplitude').checked ? amplitude : 0;
+	
+	var code = '#ifndef WAVE_TABLES_H\n#define WAVE_TABLES_H\n';
+
+	code = generate_table(code, 'sin_wave', Math.sin, amplitude, table_length, entries_per_line, origo);
+	code = generate_table(code, 'cos_wave', Math.cos, amplitude, table_length, entries_per_line, origo);
+
+	code += '\n#endif\n';
+
+	var data = 'data:text/plain;base64,' + btoa(code);
+	var download_link = document.getElementById('download-link');
+	download_link.href = data;
+	download_link.click();
+}
+</script>
+	<p><br /></p>
+</body>
+</html>
+</body>
+</html>

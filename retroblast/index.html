@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Retro Blast :: Starfield</title>
+	<link rel="shortcut icon" href="ww.ico" type="image/x-icon">
+	<link rel="icon" href="//ldy.dk/favicon.ico" type="image/x-icon">
+	<link href="https://fonts.googleapis.com/css?family=Cute+Font&display=swap" rel="stylesheet">
+	<style>
+html, body {
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	font-family: 'Cute Font', cursive;
+}
+
+#stars {
+	z-index: 1;
+}
+
+#main {
+	position: relative;
+}
+
+/** menu */
+#menu {
+	position: absolute;
+	top: 30%;
+	left: 40%;
+	color: white;
+	z-index: 1000;
+	font-size: 44px;
+	margin: 0 auto;
+	text-align: center;
+	width: 20%;
+}
+
+a.menu, a.menu:visited, a.menu:hover, a.menu:active {
+  background: linear-gradient(to bottom, #aae 0%, #aae 100%);
+	background-position: 0 100%;
+	background-repeat: repeat-x;
+  text-decoration: none;
+  transition: background-size .2s;
+	background-size: 4px 4px;
+  color: #aae;
+}
+
+a.menu:hover {
+	color: #fff;
+  background-size: 4px 50px;
+}
+
+/** header */
+#header {
+	position: absolute;
+	top: 0;
+	z-index: 1000;
+	color: #eaa;
+	font-size: 32px;
+	width: 60%;
+	left: 20%;
+	text-align: center;
+	margin-top: 1em;
+}
+
+a.header, a.header:visited, a.header:hover, a.header:active {
+  background: linear-gradient(to bottom, #aea 0%, #aea 100%);
+	background-size: 2px 2px;
+	background-position: 0 100%;
+	background-repeat: repeat-x;
+  text-decoration: none;
+  transition: background-size .2s;
+  color: #aea;
+}
+
+a.header:hover {
+	color: #fff;
+  background-size: 2px 50px;
+}
+	</style>
+</head>
+<!-- surge -->
+<body>
+	<div id="main">
+		<div id="header">
+			bschau ...
+			<a href="https://twitter.com/brianschau" class="header">@twitter</a>
+			&nbsp;|&nbsp;
+			<a href="http://dk.linkedin.com/pub/brian-schau/20/536/2a3/" class="header">@LinkedIn</a>
+			&nbsp;|&nbsp;
+			<a href="https://www.github.com/bschau" class="header">@github</a>
+		</div>
+		<div id="menu">
+			<a href="explosions.html" class="menu">&nbsp;Explosions&nbsp;</a><br />
+			<a href="procpasswd.html" class="menu">&nbsp;Passwords&nbsp;</a><br />
+			<a href="sprites.html" class="menu">&nbsp;Sprites&nbsp;</a><br />
+			<a href="waves.html" class="menu">&nbsp;Waves&nbsp;</a><br />
+		</div>
+		<canvas id="stars"></canvas>
+	</div>
+<script>
+var STARS = 512;
+var SPEED = 0.2;
+var PROJECTION = 128.0;
+var MAX_DEPTH = 16;
+var MAX_WIDTH = 40;
+var stars_x = new Array(STARS);
+var stars_y = new Array(STARS);
+var stars_z = new Array(STARS);
+var canvas = document.getElementById("stars");
+var ctx = canvas.getContext("2d");
+var screen_w, screen_h, middle_w, middle_h;
+
+function random(min, max) {
+	return Math.floor(Math.random() * (max - min - 1)) + min;
+}
+
+function setWindowSize() {
+	screen_w = document.body.clientWidth;
+	screen_h = document.body.clientHeight;
+	canvas.width = screen_w;
+	canvas.height = screen_h;
+	middle_w = canvas.width / 2;
+	middle_h = canvas.height / 2;
+}
+
+setWindowSize();
+
+window.addEventListener('resize', function () {
+	setWindowSize();
+});
+
+for (var i = 0; i < STARS; i++) {
+	stars_x[i] = random(-MAX_WIDTH, MAX_WIDTH);
+	stars_y[i] = random(-MAX_WIDTH, MAX_WIDTH);
+	stars_z[i] = random(1, MAX_DEPTH);
+}
+
+function loop() {
+	ctx.fillStyle = "rgb(0, 0, 0)";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	for (var i = 0; i < STARS; i++ ) {
+		stars_z[i] -= SPEED;
+
+		if (stars_z[i] <= 0) {
+			stars_x[i] = random(-MAX_WIDTH, MAX_WIDTH);
+			stars_y[i] = random(-MAX_WIDTH, MAX_WIDTH);
+			stars_z[i] = MAX_DEPTH;
+		}
+
+		var k = PROJECTION / stars_z[i];
+		var px = stars_x[i] * k + middle_w;
+		var py = stars_y[i] * k + middle_h;
+
+		if (px < 0 || px > screen_w || py < 0 || py > screen_h) {
+			continue;
+		}
+
+		var size = (1 - stars_z[i] / 16.0) * 5;
+		var green = parseInt((0.8 - stars_z[i] / 32.0) * 255);
+		var blue = parseInt((0.25 - stars_z[i] / 32.0) * 255);
+		ctx.fillStyle = "rgb(0," + green + "," + blue + ")";
+		ctx.fillRect(px, py, size, size);
+	}
+}
+
+setInterval(loop, 33);
+</script>
+</body>
+</html>
